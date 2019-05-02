@@ -1,0 +1,13 @@
+{
+    "name": "jerome-rdlv/cachebust-assets",
+    "description": "Add cachebust fragment to assets URL",
+    "type": "wordpress-muplugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jérôme Mulsant",
+            "email": "jerome@rue-de-la-vieille.fr"
+        }
+    ],
+    "require": {}
+}
