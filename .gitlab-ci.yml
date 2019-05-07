@@ -1,7 +1,7 @@
 before_script:
     # update and install needed packages
     - apt-get update -yqq
-    - apt-get install -yqq wget git
+    - apt-get install -yqq wget git zip unzip
     # install xdebug
     - pecl install xdebug
     - docker-php-ext-enable xdebug
@@ -28,7 +28,7 @@ build:
     stage: build
     image: php:7.2
     artifacts:
-        name: cachebust-assets-$CI_COMMIT_REF_NAME
+        name: cachebust-assets
         expire_in: 12 mos
         paths:
             - src/
@@ -39,5 +39,7 @@ build:
     script:
         # install prod dependencies
         - php composer.phar install --no-dev --optimize-autoloader
+        # set version number in plugin meta
+        - 'sed -i "s|Version: GIT|Version: $CI_COMMIT_REF_NAME|" cachebust-assets.php'
     only:
         - tags

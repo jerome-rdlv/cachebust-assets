@@ -6,43 +6,42 @@ Description: Add cache busting fragment to assets URL.
 Author: Jérôme Mulsant
 Author URI: https://rue-de-la-vieille.fr/
 License: MIT License
+Version: GIT
 */
 
 use Rdlv\WordPress\CacheBustAssets\BusterFactory;
+use Rdlv\WordPress\CacheBustAssets\WordPressRootPath;
 
 // exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('init', function () {
-
-    if (!apply_filters('cachebust_assets', !is_admin())) {
+if (!class_exists('\Rdlv\WordPress\CacheBustAssets\BusterFactory')) {
+    $autoload = __DIR__ . '/vendor/autoload.php';
+    if (file_exists($autoload)) {
+        require_once $autoload;
+    } else {
+        error_log('You need to install dependencies with `composer install`.');
         return;
     }
+}
 
-    /* get home path
-     * taken from wp-admin/includes/file.php:103
-     */
-    $home = set_url_scheme(get_option('home'), 'http');
-    $siteurl = set_url_scheme(get_option('siteurl'), 'http');
-    if (!empty($home) && 0 !== strcasecmp($home, $siteurl)) {
-        $wp_path_rel_to_home = str_ireplace($home, '', $siteurl); /* $siteurl - $home */
-        $pos = strripos(
-            str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']),
-            trailingslashit($wp_path_rel_to_home)
-        );
-        $home_path = substr($_SERVER['SCRIPT_FILENAME'], 0, $pos);
-        $home_path = trailingslashit($home_path);
-    } else {
-        $home_path = ABSPATH;
+add_action('init', function () {
+
+    if (!apply_filters('cachebust_assets_enabled', !is_admin())) {
+        return;
     }
-    $home_path = str_replace('\\', '/', $home_path);
     
-    $factory = new BusterFactory($home, $home_path);
+    // home path resolution
+    $home_url = get_option('home');
+    $site_url = get_option('siteurl');
+    $home_path = (new WordPressRootPath())->get($home_url, $site_url, ABSPATH);
+    
+    $factory = new BusterFactory($home_url, $home_path);
 
     $buster = $factory->create(
-        apply_filters('cache_bust_assets_path', false)
+        apply_filters('cachebust_assets_mode', BusterFactory::MODE_QUERY_STRING)
     );
 
     add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
