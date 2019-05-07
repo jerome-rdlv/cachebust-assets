@@ -32,4 +32,28 @@ class WordPressRootPathTest extends TestCase
             '/var/www/wp/'
         ));
     }
+
+    public function testCanonicalizeWithBackslashes()
+    {
+        $this->assertEquals(
+            '/var/www/app',
+            (new WordPressRootPath())->canonicalize('\var\www\app')
+        );
+    }
+
+    public function testCanonicalizeWithDoubleSlashes()
+    {
+        $this->assertEquals(
+            '/var/www/app',
+            (new WordPressRootPath())->canonicalize('/var/www//app')
+        );
+    }
+    
+    public function testCanonicalizeWithSeveralParents()
+    {
+        $this->assertEquals(
+            '/var/www/app/themes/defaults',
+            (new WordPressRootPath())->canonicalize('/var/htdocs/web/../../www/app/plugins/../themes/defaults/assets/..')
+        );
+    }
 }
