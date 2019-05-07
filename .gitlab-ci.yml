@@ -1,0 +1,27 @@
+before_script:
+    - bash ci/docker_install.sh > /dev/null
+
+test:
+    stage: test
+    coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+    image: php:7.2
+    script:
+        - vendor/bin/phpunit --coverage-text --colors=never --configuration phpunit.xml
+
+build:
+    stage: build
+    image: php:7.2
+    artifacts:
+        name: cachebust-assets-$CI_COMMIT_REF_NAME
+        expire_in: 12 mos
+        paths:
+            - src/
+            - vendor/
+            - cachebust-assets.php
+            - LICENSE
+            - README.md
+    script:
+        # install prod dependencies
+        - composer install --no-dev --optimize-autoloader
+    only:
+        - tags

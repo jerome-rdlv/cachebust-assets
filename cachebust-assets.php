@@ -1,201 +1,59 @@
 <?php
 
-add_action('wp_loaded', array(CacheBustAssets::getInstance(), 'init'));
+/*
+Plugin Name: CacheBust Assets
+Description: Add cache busting fragment to assets URL.
+Author: Jérôme Mulsant
+Author URI: https://rue-de-la-vieille.fr/
+License: MIT License
+*/
 
-class CacheBustAssets
-{
-    private static $instance = null;
+use Rdlv\WordPress\CacheBustAssets\BusterFactory;
 
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    public function init()
-    {
-        if ($this->doCacheBust()) {
-            add_filter('script_loader_src', [$this, 'cacheBustScript']);
-            add_filter('style_loader_src', [$this, 'cacheBustScript']);
-            add_filter('cache_bust_src', [$this, 'cacheBustSrc']);
-            add_filter('cache_bust_image', [$this, 'cacheBustImage']);
-
-            add_filter('wp_get_attachment_image_attributes', [$this, 'cacheBustImageSrc'], 10, 3);
-            add_filter('post_thumbnail_html', [$this, 'cacheBustThumbnail'], 10, 5);
-            add_filter('wp_calculate_image_srcset', [$this, 'cacheBustSrcset'], 10, 5);
-        }
-    }
-
-    private function doCacheBust()
-    {
-        return apply_filters('cachebust_assets', !is_admin());
-    }
-
-    public function cacheBustScript($src)
-    {
-        if (!$this->doCacheBust()) {
-            return $src;
-        }
-
-        if (strpos($src, get_home_url()) === false) {
-            // file out of domain, do not change
-            return $src;
-        }
-        if (strpos($src, get_site_url() . '/wp-includes') !== false) {
-            // wp file, do not change
-            return $src;
-        }
-
-        return $this->cacheBustSrc($src);
-    }
-
-    public function cacheBustSrcset(
-        /** @noinspection PhpUnusedParameterInspection */
-        $sources,
-        $size_array,
-        $image_src,
-        $image_meta,
-        $attachment_id
-    ) {
-        if (!$this->doCacheBust()) {
-            return $sources;
-        }
-
-        $path = wp_upload_dir()['basedir'] . '/' . $image_meta['file'];
-        if (file_exists($path)) {
-            $mtime = filemtime($path);
-            if ($mtime) {
-                foreach ($sources as $key => &$data) {
-                    $data['url'] = $this->cacheBust($data['url'], $mtime);
-                }
-            }
-        }
-
-        return $sources;
-    }
-
-    public function cacheBustThumbnail($html)
-    {
-        if (!$this->doCacheBust()) {
-            return $html;
-        }
-
-        $html = preg_replace_callback('/src="([^"]+)"/i', function ($matches) {
-            if (preg_match('/\.v[^.]+\.[^.]$/', $matches[1])) {
-                return $matches[0];
-            } else {
-                return 'src="' . $this->cacheBustSrc($matches[1]) . '"';
-            }
-        }, $html);
-        return $html;
-    }
-
-    private function isLocal($url)
-    {
-        return strpos($url, get_home_url()) === 0;
-    }
-
-    public function cacheBustImage($image)
-    {
-        if (!$this->doCacheBust()) {
-            return $image;
-        }
-
-        $path = $this->getPath($image['url']);
-        if (file_exists($path)) {
-            $mtime = filemtime($path);
-            if ($mtime) {
-                foreach ($image['sizes'] as $key => $data) {
-                    if (is_string($image['sizes'][$key])) {
-                        $image['sizes'][$key] = $this->cacheBust($data, $mtime);
-                    }
-                }
-            }
-        }
-
-        return $image;
-    }
-
-    public function cacheBustSrc($src, $path = null)
-    {
-        if (!$this->doCacheBust()) {
-            return $src;
-        }
-
-        $src = preg_replace('/\?.*$/', '', $src);
-        if (!$path) {
-            $path = $this->getPath($src);
-        }
-
-        // return if cache busted already
-        if (preg_match('/\.v[0-9a-z]{8,}\.[^.]+$/', $path)) {
-            return $src;
-        }
-
-        if (!file_exists($path)) {
-            return $src;
-        }
-
-        // return if filemtime fails
-        $mtime = filemtime($path);
-        if ($mtime === false) {
-            return $src;
-        }
-
-        return $this->cacheBust($src, $mtime);
-    }
-
-    public function cacheBustImageSrc($attr)
-    {
-        if (!$this->doCacheBust()) {
-            return $attr;
-        }
-
-        $path = $this->getPath($attr['src']);
-        if (file_exists($path)) {
-            $mtime = filemtime($path);
-            if ($mtime) {
-                $attr['src'] = $this->cacheBust($attr['src'], $mtime);
-            }
-        }
-
-        return $attr;
-    }
-
-    private function cacheBust($src, $mtime)
-    {
-        if (defined('CACHEBUST_PATH') && CACHEBUST_PATH) {
-            // cache bust as url path fragment
-            $src = preg_replace('/\?.*$/', '', $src);
-            if ($mtime) {
-                return preg_replace(
-                    '/\.([^.]+)$/i',
-                    '.v' . $mtime . '.\1',
-                    $src
-                );
-            } else {
-                return $src;
-            }
-        } else {
-            // cache bust as query string parameter
-            $parts = parse_url($src);
-            return preg_replace(
-                '/(\?.*|$)/',
-                (isset($parts['query']) ? $parts['query'] . '&' : '?') . 'v=' . $mtime,
-                $src
-            );
-        }
-    }
-
-    private function getPath($src)
-    {
-        if ($this->isLocal($src)) {
-            $path = realpath(str_replace(get_home_url(), dirname($_SERVER['SCRIPT_FILENAME']), $src));
-            return $path ? $path : $src;
-        } else {
-            return $src;
-        }
-    }
+// exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
 }
+
+add_action('init', function () {
+
+    if (!apply_filters('cachebust_assets', !is_admin())) {
+        return;
+    }
+
+    /* get home path
+     * taken from wp-admin/includes/file.php:103
+     */
+    $home = set_url_scheme(get_option('home'), 'http');
+    $siteurl = set_url_scheme(get_option('siteurl'), 'http');
+    if (!empty($home) && 0 !== strcasecmp($home, $siteurl)) {
+        $wp_path_rel_to_home = str_ireplace($home, '', $siteurl); /* $siteurl - $home */
+        $pos = strripos(
+            str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']),
+            trailingslashit($wp_path_rel_to_home)
+        );
+        $home_path = substr($_SERVER['SCRIPT_FILENAME'], 0, $pos);
+        $home_path = trailingslashit($home_path);
+    } else {
+        $home_path = ABSPATH;
+    }
+    $home_path = str_replace('\\', '/', $home_path);
+    
+    $factory = new BusterFactory($home, $home_path);
+
+    $buster = $factory->create(
+        apply_filters('cache_bust_assets_path', false)
+    );
+
+    add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
+    add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
+
+    add_filter('wp_get_attachment_image_attributes', [$buster, 'cacheBustImageSrc']);
+    add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
+    add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
+
+    // utilities
+    add_filter('cache_bust_src', [$buster, 'cacheBustSrc']);
+    add_filter('cache_bust_image', [$buster, 'cacheBustAcfImage']);
+
+});
