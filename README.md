@@ -3,7 +3,7 @@
 [![pipeline status](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/badges/master/pipeline.svg)](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/commits/master)
 [![coverage report](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/badges/master/coverage.svg)](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/commits/master)
 
-This plugin add a cache busting fragment to assets URL.
+This WordPress plugin add a cache busting fragment to assets URL.
 
 Cache busting fragment is based on resource last modification time (`mtime`)
 so its URL changes each time the resource changes, forcing browser to load the new version.
