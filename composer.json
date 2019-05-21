@@ -1,6 +1,6 @@
 {
     "name": "jerome-rdlv/cachebust-assets",
-    "description": "Add cache busting fragment to assets URL (in query string or path).",
+    "description": "Add cache busting fragment to assets URL, in query string or path.",
     "type": "wordpress-muplugin",
     "license": "MIT",
     "authors": [

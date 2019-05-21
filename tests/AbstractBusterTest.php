@@ -152,10 +152,26 @@ class AbstractBusterTest extends TestCase
 
         /** @var AbstractBuster $buster */
         $buster = $mock;
+        $src = ['http://example.org/image.jpg', 800, 600];
+        $this->assertEquals(
+            'cache-busted-url',
+            $buster->cacheBustImageSrc($src)[0]
+        );
+    }
+
+    public function testCacheBustImageAttributes()
+    {
+        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
+            'cacheBustUrl',
+        ]);
+        $mock->method('cacheBustUrl')->willReturn('cache-busted-url');
+
+        /** @var AbstractBuster $buster */
+        $buster = $mock;
         $attr = ['src' => 'http://example.org/image.jpg'];
         $this->assertEquals(
             'cache-busted-url',
-            $buster->cacheBustImageSrc($attr)['src']
+            $buster->cacheBustImageAttributes($attr)['src']
         );
     }
 

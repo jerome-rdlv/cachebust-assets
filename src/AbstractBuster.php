@@ -104,7 +104,13 @@ abstract class AbstractBuster
      */
     public abstract function addTimeToUrl($url, $mtime);
 
-    public function cacheBustImageSrc($attr)
+    public function cacheBustImageSrc($src)
+    {
+        $src[0] = $this->cacheBustUrl($src[0]);
+        return $src;
+    }
+
+    public function cacheBustImageAttributes($attr)
     {
         $attr['src'] = $this->cacheBustUrl($attr['src']);
         return $attr;
