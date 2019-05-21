@@ -52,7 +52,7 @@ add_action('init', function () {
     add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
 
     // utilities
-    add_filter('cache_bust_src', [$buster, 'cacheBustSrc']);
+    add_filter('cache_bust_src', [$buster, 'cacheBustUrl']);
     add_filter('cache_bust_image', [$buster, 'cacheBustAcfImage']);
 
 });

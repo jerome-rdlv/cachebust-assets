@@ -66,7 +66,7 @@ Query string parameter may cause issues in some environment like CDN or with som
 web server configurations. In this case you may switch to `path` mode:
 
 ```php
-add_filter('cachebust_assets', function () {
+add_filter('cachebust_assets_mode', function () {
     return 'path';
 });
 ```
