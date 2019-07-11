@@ -159,21 +159,21 @@ class AbstractBusterTest extends TestCase
         );
     }
 
-    public function testCacheBustImageAttributes()
-    {
-        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
-            'cacheBustUrl',
-        ]);
-        $mock->method('cacheBustUrl')->willReturn('cache-busted-url');
-
-        /** @var AbstractBuster $buster */
-        $buster = $mock;
-        $attr = ['src' => 'http://example.org/image.jpg'];
-        $this->assertEquals(
-            'cache-busted-url',
-            $buster->cacheBustImageAttributes($attr)['src']
-        );
-    }
+//    public function testCacheBustImageAttributes()
+//    {
+//        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
+//            'cacheBustUrl',
+//        ]);
+//        $mock->method('cacheBustUrl')->willReturn('cache-busted-url');
+//
+//        /** @var AbstractBuster $buster */
+//        $buster = $mock;
+//        $attr = ['src' => 'http://example.org/image.jpg'];
+//        $this->assertEquals(
+//            'cache-busted-url',
+//            $buster->cacheBustImageAttributes($attr)['src']
+//        );
+//    }
 
     public function testCacheBustThumbnail()
     {
