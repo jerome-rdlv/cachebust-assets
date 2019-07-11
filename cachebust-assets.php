@@ -1,12 +1,12 @@
 <?php
 
 /*
-Plugin Name: CacheBust Assets
-Description: Add cache busting fragment to assets URL.
-Author: Jérôme Mulsant
-Author URI: https://rue-de-la-vieille.fr/
-License: MIT License
-Version: GIT
+ * Plugin Name: CacheBust Assets
+ * Description: Add cache busting fragment to assets URL.
+ * Author: Jérôme Mulsant
+ * Author URI: https://rue-de-la-vieille.fr/
+ * License: MIT License
+ * Version: GIT
 */
 
 use Rdlv\WordPress\CacheBustAssets\BusterFactory;
