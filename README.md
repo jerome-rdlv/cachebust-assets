@@ -33,7 +33,7 @@ You can then load the plugin from another one or from a theme’s `functions.php
 
 In case of manual installation, either as plugin or mu-plugin,
 don’t forget to run `composer install` inside the plugin directory
-to install its depedenncies (actually merely the autoloader).
+to install its dependencies (actually merely the autoloader).
 
 ## Usage
 
