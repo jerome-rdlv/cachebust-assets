@@ -47,12 +47,12 @@ add_action('init', function () {
     add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
     add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
 
-    add_filter('wp_get_attachment_image_src', [$buster, 'cacheBustImageSrc']);
+    add_filter('wp_get_attachment_image_attributes', [$buster, 'cacheBustImageAttributes']);
     add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
     add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
 
     // utilities
-    add_filter('cache_bust_src', [$buster, 'cacheBustUrl']);
-    add_filter('cache_bust_image', [$buster, 'cacheBustAcfImage']);
+    add_filter('cache_bust_url', [$buster, 'cacheBustUrl']);
+    add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
 
 });

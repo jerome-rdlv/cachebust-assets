@@ -111,6 +111,16 @@ abstract class AbstractBuster
     }
 
     /**
+     * @param array $attr Image attributes array: src, class, alt, sizes, srcset
+     * @return array
+     */
+    public function cacheBustImageAttributes($attr)
+    {
+        $attr['src'] = $this->cacheBustUrl($attr['src']);
+        return $attr;
+    }
+
+    /**
      * @param string $html
      * @return string
      */
