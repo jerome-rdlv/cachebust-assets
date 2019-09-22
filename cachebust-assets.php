@@ -2,6 +2,7 @@
 
 /*
  * Plugin Name: CacheBust Assets
+ * Plugin URI: https://github.com/jerome-rdlv/cachebust-assets
  * Description: Add cache busting fragment to assets URL.
  * Author: Jérôme Mulsant
  * Author URI: https://rue-de-la-vieille.fr/
