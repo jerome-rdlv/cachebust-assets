@@ -1,16 +1,16 @@
-before_script:
+#before_script:
     # update and install needed packages
-    - apt-get update -yqq
-    - apt-get install -yqq wget git zip unzip
+    #- apt-get update -yqq
+    #- apt-get install -yqq wget git zip unzip
     # install xdebug
-    - pecl install xdebug
-    - docker-php-ext-enable xdebug
+    #- pecl install xdebug
+    #- docker-php-ext-enable xdebug
     # install composer
-    - wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig
-    - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    - php -r "if (hash_file('SHA384', 'composer-setup.php') !== file_get_contents('installer.sig')) { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-    - php composer-setup.php
-    - php -r "unlink('composer-setup.php'); unlink('installer.sig');"
+    #- wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig
+    #- php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    #- php -r "if (hash_file('SHA384', 'composer-setup.php') !== file_get_contents('installer.sig')) { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    #- php composer-setup.php
+    #- php -r "unlink('composer-setup.php'); unlink('installer.sig');"
 
 stages:
     - test
@@ -19,10 +19,15 @@ stages:
 test:
     stage: test
     coverage: '/^\s*Lines:\s*\d+.\d+\%/'
-    image: php:7.2
+    
+    #image: php:7.2
+    image: jerome-rdlv/web-ci
     script:
         - php composer.phar install
         - vendor/bin/phpunit --coverage-text --colors=never --configuration phpunit.xml
+    cache:
+        paths:
+            - vendor
 
 build:
     stage: build
@@ -41,5 +46,8 @@ build:
         - php composer.phar install --no-dev --optimize-autoloader
         # set version number in plugin meta
         - 'sed -i "s|Version: GIT|Version: $CI_COMMIT_REF_NAME|" cachebust-assets.php'
+    cache:
+        paths:
+            - vendor
     only:
         - tags
