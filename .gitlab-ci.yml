@@ -23,7 +23,7 @@ test:
     #image: php:7.2
     image: jerome-rdlv/web-ci
     script:
-        - php composer.phar install
+        - composer install
         - vendor/bin/phpunit --coverage-text --colors=never --configuration phpunit.xml
     cache:
         paths:
