@@ -1,6 +1,7 @@
 # Cachebust Assets
 
 [![CircleCI](https://circleci.com/gh/jerome-rdlv/cachebust-assets.svg?style=svg)](https://circleci.com/gh/jerome-rdlv/cachebust-assets)
+[![codecov](https://codecov.io/gh/jerome-rdlv/cachebust-assets/branch/master/graph/badge.svg)](https://codecov.io/gh/jerome-rdlv/cachebust-assets)
 
 This WordPress plugin add a cache busting fragment to assets URL.
 
