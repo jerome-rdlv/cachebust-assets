@@ -38,9 +38,9 @@ jobs:
                     command: |
                         composer install --no-dev --optimize-autoloader
                         sed -i "s|Version: GIT|Version: $CIRCLE_TAG|" cachebust-assets.php
-                        zip $CIRCLE_PROJECT_REPONAME -r -9 *.php LICENSE src vendor
+                        zip package -r -9 *.php LICENSE src vendor
             -   store_artifacts:
-                    path: $CIRCLE_PROJECT_REPONAME.zip
+                    path: package.zip
 workflows:
     version: 2
     tests:
