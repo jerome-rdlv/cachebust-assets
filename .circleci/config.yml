@@ -9,11 +9,11 @@ jobs:
     tests:
         executor: php7
         steps:
+            - checkout
             -   restore_cache:
                     keys:
                         - composer-{{ checksum "composer.lock" }}
                         - composer-
-            - checkout
             -   run:
                     name: Run unit tests and code coverage
                     command: |
