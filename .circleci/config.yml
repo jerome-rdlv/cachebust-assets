@@ -1,0 +1,54 @@
+version: 2.1
+orbs:
+    codecov: codecov/codecov@1.0.2
+executors:
+    php7:
+        docker:
+            -   image: circleci/php:7.3.9
+jobs:
+    tests:
+        executor: php7
+        steps:
+            -   restore_cache:
+                    keys:
+                        - composer-{{ checksum "composer.lock" }}
+                        - composer-
+            - checkout
+            -   run:
+                    name: Run unit tests and code coverage
+                    command: |
+                        composer install
+                        vendor/bin/phpunit --no-coverage --log-junit test-results/phpunit/results.xml --configuration phpunit.xml
+                        phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml --configuration phpunit.xml
+            -   save_cache:
+                    key: composer-{{ checksum "composer.lock" }}
+                    paths:
+                        - vendor
+            -   store_test_results:
+                    path: test-results
+            -   codecov/upload:
+                    file: coverage.xml
+                    flags: unittests
+    package:
+        executor: php7
+        steps:
+            - checkout
+            -   run:
+                    name: Package plugin
+                    command: |
+                        composer install --no-dev --optimize-autoloader
+                        sed -i "s|Version: GIT|Version: $CIRCLE_TAG|" cachebust-assets.php
+                        zip $CIRCLE_PROJECT_REPONAME-$CIRCLE_TAG -r -9 *.php LICENSE src vendor
+            -   store_artifacts:
+                    path: $CIRCLE_PROJECT_REPONAME-$CIRCLE_TAG
+workflows:
+    version: 2
+    tests:
+        jobs:
+            - tests
+    package:
+        jobs:
+            -   package:
+                    filters:
+                        tags:
+                            only: /.*/

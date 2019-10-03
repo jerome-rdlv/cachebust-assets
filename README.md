@@ -1,7 +1,6 @@
 # Cachebust Assets
 
-[![pipeline status](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/badges/master/pipeline.svg)](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/commits/master)
-[![coverage report](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/badges/master/coverage.svg)](https://gitlab.rue-de-la-vieille.fr/jerome/cachebust-assets/commits/master)
+[![CircleCI](https://circleci.com/gh/jerome-rdlv/cachebust-assets.svg?style=svg)](https://circleci.com/gh/jerome-rdlv/cachebust-assets)
 
 This WordPress plugin add a cache busting fragment to assets URL.
 
