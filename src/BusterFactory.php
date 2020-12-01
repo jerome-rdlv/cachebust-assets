@@ -15,7 +15,7 @@ class BusterFactory
     private $homePath;
     private $filter;
 
-    public function __construct($homeUrl, $homePath, callable $filter)
+    public function __construct($homeUrl, $homePath, callable $filter = null)
     {
         $this->homeUrl = $homeUrl;
         $this->homePath = $homePath;
