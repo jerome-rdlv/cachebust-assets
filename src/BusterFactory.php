@@ -40,7 +40,10 @@ class BusterFactory
                 throw new Exception(sprintf("Mode '%s' not supported", $mode));
         }
         $buster->setHome($this->homeUrl, $this->homePath);
-        $buster->setFilter($this->filter);
+
+        if ($this->filter) {
+            $buster->setFilter($this->filter);
+        }
         return $buster;
     }
 }
