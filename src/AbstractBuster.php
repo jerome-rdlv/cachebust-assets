@@ -5,8 +5,14 @@ namespace Rdlv\WordPress\CacheBustAssets;
 
 abstract class AbstractBuster
 {
+    /** @var string */
     private $homeUrl = '';
+    
+    /** @var string  */
     private $homePath = '';
+    
+    /** @var callable */
+    private $filter;
 
     public function setHome($homeUrl, $homePath)
     {
@@ -19,6 +25,11 @@ abstract class AbstractBuster
             $homePath .= '/';
         }
         $this->homePath = $homePath;
+    }
+    
+    public function setFilter(callable $filter)
+    {
+        $this->filter = $filter;
     }
 
     public abstract function isCacheBusted($url);
@@ -84,6 +95,10 @@ abstract class AbstractBuster
 
         if ($this->isCacheBusted($url)) {
             // URL is cachebusted already
+            return $url;
+        }
+        
+        if ($this->filter && !call_user_func($this->filter, $url)) {
             return $url;
         }
 

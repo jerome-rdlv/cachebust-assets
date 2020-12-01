@@ -13,11 +13,13 @@ class BusterFactory
 
     private $homeUrl;
     private $homePath;
+    private $filter;
 
-    public function __construct($homeUrl, $homePath)
+    public function __construct($homeUrl, $homePath, callable $filter)
     {
         $this->homeUrl = $homeUrl;
         $this->homePath = $homePath;
+        $this->filter = $filter;
     }
 
     /**
@@ -38,6 +40,7 @@ class BusterFactory
                 throw new Exception(sprintf("Mode '%s' not supported", $mode));
         }
         $buster->setHome($this->homeUrl, $this->homePath);
+        $buster->setFilter($this->filter);
         return $buster;
     }
 }

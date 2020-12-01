@@ -39,7 +39,9 @@ add_action('init', function () {
     $site_url = get_option('siteurl');
     $home_path = (new WordPressRootPath())->get($home_url, $site_url, ABSPATH);
     
-    $factory = new BusterFactory($home_url, $home_path);
+    $factory = new BusterFactory($home_url, $home_path, function ($url) {
+        return apply_filters('cachebust_url', true, $url);
+    });
 
     $buster = $factory->create(
         apply_filters('cachebust_assets_mode', BusterFactory::MODE_QUERY_STRING)
