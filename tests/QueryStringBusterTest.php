@@ -25,7 +25,7 @@ class QueryStringBusterTest extends TestCase
         $time = 1557248558;
         $this->assertEquals(
             "http://example.org/main.js?v=$time",
-            (new QueryStringBuster())->addTimeToUrl('http://example.org/main.js', $time)
+            (new QueryStringBuster())->addSignatureToUrl('http://example.org/main.js', $time)
         );
     }
 
@@ -34,7 +34,7 @@ class QueryStringBusterTest extends TestCase
         $time = 1557248558;
         $this->assertEquals(
             "http://example.org/main.js?param1=val1&v=$time",
-            (new QueryStringBuster())->addTimeToUrl('http://example.org/main.js?param1=val1', $time)
+            (new QueryStringBuster())->addSignatureToUrl('http://example.org/main.js?param1=val1', $time)
         );
     }
 }

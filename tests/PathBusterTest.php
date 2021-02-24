@@ -32,7 +32,7 @@ class PathBusterTest extends TestCase
         $time = 1557248558;
         $this->assertEquals(
             "http://example.org/main.v$time.js",
-            (new PathBuster())->addTimeToUrl('http://example.org/main.js', $time)
+            (new PathBuster())->addSignatureToUrl('http://example.org/main.js', $time)
         );
     }
 
@@ -41,7 +41,7 @@ class PathBusterTest extends TestCase
         $time = 1557248558;
         $this->assertEquals(
             "http://example.org/main.v$time.js?param1=val1",
-            (new PathBuster())->addTimeToUrl('http://example.org/main.js?param1=val1', $time)
+            (new PathBuster())->addSignatureToUrl('http://example.org/main.js?param1=val1', $time)
         );
     }
 }

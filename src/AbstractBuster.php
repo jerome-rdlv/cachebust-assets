@@ -5,12 +5,16 @@ namespace Rdlv\WordPress\CacheBustAssets;
 
 abstract class AbstractBuster
 {
+    const SIGNATURE_TIME = 'timestamp';
+    const SIGNATURE_MD5 = 'md5';
+    const SIGNATURE_SHA1 = 'md5';
+
     /** @var string */
     private $homeUrl = '';
-    
-    /** @var string  */
+
+    /** @var string */
     private $homePath = '';
-    
+
     /** @var callable */
     private $filter;
 
@@ -26,25 +30,13 @@ abstract class AbstractBuster
         }
         $this->homePath = $homePath;
     }
-    
+
     public function setFilter(callable $filter)
     {
         $this->filter = $filter;
     }
 
     public abstract function isCacheBusted($url);
-
-    /**
-     * @param string $path Resource path
-     * @return false|int Resource last modification time, or false
-     */
-    public function getMtime($path)
-    {
-        if (!file_exists($path)) {
-            return false;
-        }
-        return filemtime($path);
-    }
 
     /**
      * @see https://www.php.net/manual/en/function.parse-url.php
@@ -86,7 +78,28 @@ abstract class AbstractBuster
         return $this->homePath . substr($url, strlen($this->homeUrl));
     }
 
-    public function cacheBustUrl($url)
+    /**
+     * @param string $path File path
+     * @param string $mode
+     * @return false|string
+     */
+    public function getSignature($path, $mode = self::SIGNATURE_TIME)
+    {
+        if (!file_exists($path)) {
+            return false;
+        }
+        switch ($mode) {
+            case self::SIGNATURE_MD5:
+                return md5_file($path);
+            case self::SIGNATURE_SHA1:
+                return sha1_file($path);
+            case self::SIGNATURE_TIME:
+            default:
+                return (string)filemtime($path);
+        }
+    }
+
+    public function cacheBustUrl($url, $mode = self::SIGNATURE_TIME)
     {
         if (!$this->isLocal($url)) {
             // do not cachebust remote URL
@@ -97,27 +110,27 @@ abstract class AbstractBuster
             // URL is cachebusted already
             return $url;
         }
-        
+
         if ($this->filter && !call_user_func($this->filter, $url)) {
             return $url;
         }
 
-        $mtime = $this->getMtime($this->getPath($url));
+        $signature = $this->getSignature($this->getPath($url), $mode);
 
-        if ($mtime === false) {
+        if ($signature === false) {
             // error getting mtime
             return $url;
         }
 
-        return $this->addTimeToUrl($url, $mtime);
+        return $this->addSignatureToUrl($url, $signature);
     }
 
     /**
-     * @param string $url The URL to add cache busting fragment to
-     * @param integer $mtime The last modification time of the resource
-     * @return string The cache busted URL
+     * @param string $url URL to add cache busting fragment to
+     * @param integer $signature File signature
+     * @return string Cache busted URL
      */
-    public abstract function addTimeToUrl($url, $mtime);
+    public abstract function addSignatureToUrl($url, $signature);
 
     public function cacheBustImageSrc($src)
     {
@@ -162,13 +175,13 @@ abstract class AbstractBuster
             return $sources;
         }
 
-        $mtime = $this->getMtime($this->getPath($image_src));
+        $mtime = $this->getSignature($this->getPath($image_src));
         if ($mtime === false) {
             return $sources;
         }
 
         foreach ($sources as $key => &$source) {
-            $source['url'] = $this->addTimeToUrl($source['url'], $mtime);
+            $source['url'] = $this->addSignatureToUrl($source['url'], $mtime);
         }
 
         return $sources;
@@ -181,22 +194,22 @@ abstract class AbstractBuster
      */
     public function cacheBustAcfImage($image)
     {
-        $mtime = $this->getMtime($this->getPath($image['url']));
+        $mtime = $this->getSignature($this->getPath($image['url']));
         if ($mtime === false) {
             return $image;
         }
 
-        $image['url'] = $this->addTimeToUrl($image['url'], $mtime);
+        $image['url'] = $this->addSignatureToUrl($image['url'], $mtime);
 
         foreach ($image['sizes'] as $key => $data) {
             if (is_string($image['sizes'][$key])) {
-                $image['sizes'][$key] = $this->addTimeToUrl($data, $mtime);
+                $image['sizes'][$key] = $this->addSignatureToUrl($data, $mtime);
             }
         }
 
         return $image;
     }
-    
+
     public function cacheBustFavicons($meta_tags)
     {
         return array_map(function ($meta_tag) {

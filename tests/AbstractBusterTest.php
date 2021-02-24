@@ -21,7 +21,7 @@ class AbstractBusterTest extends TestCase
         touch($this->rootUrl . '/test.js', 1557240509);
         /** @var AbstractBuster $buster */
         $buster = $this->getMockForAbstractClass(AbstractBuster::class);
-        $this->assertEquals(1557240509, $buster->getMtime($this->rootUrl . '/test.js'));
+        $this->assertEquals(1557240509, $buster->getSignature($this->rootUrl . '/test.js'));
     }
 
     public function testBuildUrlWithHttps()

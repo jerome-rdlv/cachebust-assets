@@ -64,6 +64,6 @@ add_action('init', function () {
     add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
 
     // utilities
-    add_filter('cache_bust_url', [$buster, 'cacheBustUrl']);
+    add_filter('cache_bust_url', [$buster, 'cacheBustUrl'], 10, 2);
     add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
 });

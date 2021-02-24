@@ -12,11 +12,11 @@ class QueryStringBuster extends AbstractBuster
         return !empty($params['v']);
     }
 
-    public function addTimeToUrl($url, $mtime)
+    public function addSignatureToUrl($url, $signature)
     {
         $parts = parse_url($url);
         // add cache busting fragment as query string parameter
-        $parts['query'] = (isset($parts['query']) ? $parts['query'] . '&' : '') . 'v=' . $mtime;
+        $parts['query'] = (isset($parts['query']) ? $parts['query'] . '&' : '') . 'v=' . $signature;
         return $this->buildUrl($parts);
     }
 
