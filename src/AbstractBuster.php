@@ -20,12 +20,12 @@ abstract class AbstractBuster
 
     public function setHome($homeUrl, $homePath)
     {
-        if (strpos($homeUrl, '/', -1) === false) {
+        if ($homeUrl && strpos($homeUrl, '/', -1) === false) {
             $homeUrl .= '/';
         }
         $this->homeUrl = $homeUrl;
 
-        if (strpos($homePath, '/', -1) === false) {
+        if ($homePath && strpos($homePath, '/', -1) === false) {
             $homePath .= '/';
         }
         $this->homePath = $homePath;
