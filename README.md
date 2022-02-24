@@ -14,6 +14,8 @@ HTTP header. For example, on Apache:
 ```apacheconfig
 ExpiresActive On
 ExpiresDefault "access plus 1 year"
+ExpiresByType text/css "access plus 1 year"
+ExpiresByType application/javascript "access plus 1 year"
 Header append Cache-Control "public"
 ```
 
@@ -52,10 +54,12 @@ of resources. On Apache for example:
 ```apacheconfig
 <IfModule mod_expires.c>
     # expires depending on query string
-    <If "%{QUERY_STRING} =~ m#(^|&)v=\d+($|&)#">
+    <If "%{QUERY_STRING} =~ m#(^|&)(v|ver)=[a-z0-9.]+($|&)#">
+        Header set Cache-Control "max-age=31536000, public"
         ExpiresActive On
         ExpiresDefault "access plus 1 year"
-        Header append Cache-Control "public"
+        ExpiresByType text/css "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
     </If>
 </IfModule>
 ```
@@ -83,15 +87,17 @@ For apache:
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)\.v(\d+)\.([a-z0-9]+)$ $1.$3 [L,E=LT_CACHE:$1]
+    RewriteRule ^(.+)\.v([0-9a-z]+)\.([a-z0-9]+)$ $1.$3 [L,E=LT_CACHE:$1]
 </IfModule>
 
 <IfModule mod_expires.c>
     # available with apache 2.4 and above only
-    <If "-n %{ENV:REDIRECT_LT_CACHE}">
+    <If "-n %{ENV:REDIRECT_LT_CACHE} || -n %{ENV:REDIRECT_REDIRECT_LT_CACHE}">
+        Header set Cache-Control "max-age=31536000, public"
         ExpiresActive On
         ExpiresDefault "access plus 1 year"
-        Header append Cache-Control "public"
+        ExpiresByType text/css "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
     </If>
 </IfModule>
 ```

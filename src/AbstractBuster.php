@@ -7,7 +7,7 @@ abstract class AbstractBuster
 {
     const SIGNATURE_TIME = 'timestamp';
     const SIGNATURE_MD5 = 'md5';
-    const SIGNATURE_SHA1 = 'md5';
+    const SIGNATURE_SHA1 = 'sha1';
 
     /** @var string */
     private $homeUrl = '';
@@ -156,7 +156,7 @@ abstract class AbstractBuster
     {
         return preg_replace_callback('/ src=(?<quote>["\'])(?<url>.*?)\1/i', function ($m) {
             return sprintf(' src=%1$s%2$s%1$s', $m['quote'], $this->cacheBustUrl($m['url']));
-        }, $html);
+        },                           $html);
     }
 
     /**
@@ -215,7 +215,7 @@ abstract class AbstractBuster
         return array_map(function ($meta_tag) {
             return preg_replace_callback('/ (?<att>href|content)=(?<quote>["\'])(?<url>.*?)\2/i', function ($m) {
                 return sprintf(' %1$s=%2$s%3$s%2$s', $m['att'], $m['quote'], $this->cacheBustUrl($m['url']));
-            }, $meta_tag);
+            },                           $meta_tag);
         }, $meta_tags);
     }
 }
