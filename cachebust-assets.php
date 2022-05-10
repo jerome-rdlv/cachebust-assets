@@ -61,7 +61,6 @@ add_action('init', function () use ($buster) {
     add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
     add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
 
-    add_filter('wp_get_attachment_image_attributes', [$buster, 'cacheBustImageAttributes']);
     add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
     add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
 

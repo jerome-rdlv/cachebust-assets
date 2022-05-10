@@ -16,12 +16,32 @@ class AbstractBusterTest extends TestCase
         $this->rootUrl = vfsStream::setup()->url();
     }
 
-    public function testModificationTime()
+    public function testMtimeSignature()
     {
         touch($this->rootUrl . '/test.js', 1557240509);
         /** @var AbstractBuster $buster */
         $buster = $this->getMockForAbstractClass(AbstractBuster::class);
         $this->assertEquals(1557240509, $buster->getSignature($this->rootUrl . '/test.js'));
+    }
+
+    public function testMd5Signature()
+    {
+        $content = 'Lorem ipsum dolor sit amet';
+        file_put_contents($this->rootUrl . '/test.js', $content);
+        /** @var AbstractBuster $buster */
+        $buster = $this->getMockForAbstractClass(AbstractBuster::class);
+        $this->assertEquals(md5($content),
+                            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_MD5));
+    }
+
+    public function testSha1Signature()
+    {
+        $content = 'Lorem ipsum dolor sit amet';
+        file_put_contents($this->rootUrl . '/test.js', $content);
+        /** @var AbstractBuster $buster */
+        $buster = $this->getMockForAbstractClass(AbstractBuster::class);
+        $this->assertEquals(sha1($content),
+                            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_SHA1));
     }
 
     public function testBuildUrlWithHttps()
@@ -159,22 +179,6 @@ class AbstractBusterTest extends TestCase
         );
     }
 
-//    public function testCacheBustImageAttributes()
-//    {
-//        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
-//            'cacheBustUrl',
-//        ]);
-//        $mock->method('cacheBustUrl')->willReturn('cache-busted-url');
-//
-//        /** @var AbstractBuster $buster */
-//        $buster = $mock;
-//        $attr = ['src' => 'http://example.org/image.jpg'];
-//        $this->assertEquals(
-//            'cache-busted-url',
-//            $buster->cacheBustImageAttributes($attr)['src']
-//        );
-//    }
-
     public function testCacheBustThumbnail()
     {
         // create image file
@@ -232,7 +236,7 @@ class AbstractBusterTest extends TestCase
             'getSignature',
         ]);
         $mock->method('getSignature')->willReturn('1557247935');
-        
+
         // we test only cacheBustAcfImage, not the underlying methods
         $mock->method('addSignatureToUrl')->willReturnOnConsecutiveCalls(
             'cache-busted-url-main',
@@ -262,5 +266,46 @@ class AbstractBusterTest extends TestCase
             ],
             $buster->cacheBustAcfImage($image)
         );
+    }
+
+    public function testCacheBustFavicons()
+    {
+        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
+            'cacheBustUrl',
+        ]);
+        $mock->method('cacheBustUrl')->willReturn('cache-busted-url');
+        /** @var AbstractBuster $buster */
+        $buster = $mock;
+        $tag = '<link rel="icon" href="%s" sizes="32x32" />';
+        $this->assertEquals(
+            [sprintf($tag, 'cache-busted-url')],
+            $buster->cacheBustFavicons([sprintf($tag, 'https://example.org/cropped-favicon-32x32.png')])
+        );
+    }
+
+    public function testFilter()
+    {
+        $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
+            'isLocal',
+            'isCacheBusted',
+            'getSignature',
+            'addSignatureToUrl',
+        ]);
+        $mock->method('isLocal')->willReturn(true);
+        $mock->method('isCacheBusted')->willReturn(false);
+        $mock->method('getSignature')->willReturn('signature');
+        $mock->method('addSignatureToUrl')->willReturn('cache-busted-url');
+
+        $url = 'http://example.org/image.jpg';
+
+        /** @var AbstractBuster $buster */
+        $buster = $mock;
+        $buster->setHome('http://example.org/', $this->rootUrl);
+
+        $this->assertEquals('cache-busted-url', $buster->cacheBustUrl($url));
+        $buster->setFilter(function (string $url) {
+            return false;
+        });
+        $this->assertEquals($url, $buster->cacheBustUrl($url));
     }
 }
