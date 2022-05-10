@@ -12,13 +12,14 @@
 
 use Rdlv\WordPress\CacheBustAssets\BusterFactory;
 use Rdlv\WordPress\CacheBustAssets\WordPressRootPath;
+use Rdlv\WordPress\Registry\Registry;
 
-// exit if accessed directly
+// Prevent direct execution.
 if (!defined('ABSPATH')) {
     exit;
 }
 
-if (!class_exists('\Rdlv\WordPress\CacheBustAssets\BusterFactory')) {
+if (!class_exists(BusterFactory::class)) {
     $autoload = __DIR__ . '/vendor/autoload.php';
     if (file_exists($autoload)) {
         require_once $autoload;
@@ -28,7 +29,13 @@ if (!class_exists('\Rdlv\WordPress\CacheBustAssets\BusterFactory')) {
     }
 }
 
-add_action('init', function () {
+$buster = (new BusterFactory())->create(getenv('CACHEBUST_MODE') ?? BusterFactory::MODE_QUERY_STRING);
+
+if (class_exists(Registry::class)) {
+    Registry::set($buster, 'cachebuster');
+}
+
+add_action('init', function () use ($buster) {
     if (!apply_filters('cachebust_assets_enabled', !is_admin())) {
         return;
     }
@@ -38,18 +45,15 @@ add_action('init', function () {
     $site_url = get_option('siteurl');
     $home_path = (new WordPressRootPath())->get($home_url, $site_url, ABSPATH);
 
-    $factory = new BusterFactory($home_url, $home_path, function ($url) {
+    $buster->setHome($home_url, $home_path);
+    $buster->setFilter(function ($url) {
         return apply_filters('cachebust_url', true, $url);
     });
-
-    $buster = $factory->create(
-        apply_filters('cachebust_assets_mode', BusterFactory::MODE_QUERY_STRING)
-    );
 
     // default filters
     add_filter('cachebust_url', function ($cachebust, $url) {
         return strpos($url, '/wp/') === false;
-    }, 5, 2);
+    },         5, 2);
     add_filter('cachebust_assets_enabled', function () {
         return !is_admin() && $GLOBALS['pagenow'] !== 'wp-login.php';
     });
@@ -64,6 +68,14 @@ add_action('init', function () {
     add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
 
     // utilities
+   
+    /**
+     * @deprecated Should get buster service from Registry
+     */
     add_filter('cache_bust_url', [$buster, 'cacheBustUrl'], 10, 2);
+
+    /**
+     * @deprecated Should get buster service from Registry
+     */
     add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
 });

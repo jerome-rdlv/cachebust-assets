@@ -10,15 +10,20 @@
         }
     ],
     "require": {
-        "php": ">=7.0"
+        "php": ">=7.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0",
-        "mikey179/vfsstream": "^1.6"
+        "mikey179/vfsstream": "^1.6",
+        "phpstan/phpstan": "^1.6"
     },
     "autoload": {
         "psr-4": {
             "Rdlv\\WordPress\\CacheBustAssets\\": "src/"
         }
+    },
+    "scripts": {
+        "test": "@php vendor/bin/phpunit --configuration phpunit.xml",
+        "phpstan": "@php vendor/bin/phpstan analyze src"
     }
 }

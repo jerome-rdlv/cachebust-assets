@@ -6,13 +6,19 @@ namespace Rdlv\WordPress\CacheBustAssets;
 
 class QueryStringBuster extends AbstractBuster
 {
-    public function isCacheBusted($url)
+    /**
+     * @inerhitDoc
+     */
+    public function isCacheBusted(string $url): bool
     {
-        parse_str(parse_url($url, PHP_URL_QUERY), $params);
+        parse_str(parse_url($url, PHP_URL_QUERY) ?: '', $params);
         return !empty($params['v']);
     }
 
-    public function addSignatureToUrl($url, $signature)
+    /**
+     * @inerhitDoc
+     */
+    public function addSignatureToUrl(string $url, string $signature): string
     {
         $parts = parse_url($url);
         // add cache busting fragment as query string parameter

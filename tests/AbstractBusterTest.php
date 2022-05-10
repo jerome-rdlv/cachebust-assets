@@ -120,7 +120,7 @@ class AbstractBusterTest extends TestCase
     {
         touch($this->rootUrl . '/main.js', 1557245182);
         $mock = $this->getMockForAbstractClass(AbstractBuster::class);
-        $mock->method('addTimeToUrl')->willReturn('cache-busted-url');
+        $mock->method('addSignatureToUrl')->willReturn('cache-busted-url');
 
         /** @var AbstractBuster $buster */
         $buster = $mock;
@@ -134,7 +134,7 @@ class AbstractBusterTest extends TestCase
     public function testUnchangeUrlForNotExistentAsset()
     {
         $mock = $this->getMockForAbstractClass(AbstractBuster::class);
-        $mock->method('addTimeToUrl')->willReturn('cache-busted-url');
+        $mock->method('addSignatureToUrl')->willReturn('cache-busted-url');
 
         /** @var AbstractBuster $buster */
         $buster = $mock;
@@ -182,7 +182,7 @@ class AbstractBusterTest extends TestCase
         touch($this->rootUrl . '/main.js', 1557247393);
 
         $mock = $this->getMockForAbstractClass(AbstractBuster::class);
-        $mock->method('addTimeToUrl')->willReturn('cache-busted-url');
+        $mock->method('addSignatureToUrl')->willReturn('cache-busted-url');
 
         /** @var AbstractBuster $buster */
         $buster = $mock;
@@ -201,7 +201,7 @@ class AbstractBusterTest extends TestCase
         touch($this->rootUrl . '/main.js', 1557245182);
 
         $mock = $this->getMockForAbstractClass(AbstractBuster::class);
-        $mock->method('addTimeToUrl')->willReturnOnConsecutiveCalls(
+        $mock->method('addSignatureToUrl')->willReturnOnConsecutiveCalls(
             'cache-busted-source-1',
             'cache-busted-source-2'
         );
@@ -229,10 +229,12 @@ class AbstractBusterTest extends TestCase
     public function testCacheBustAcfImage()
     {
         $mock = $this->getMockForAbstractClass(AbstractBuster::class, [], '', true, true, true, [
-            'getMtime',
+            'getSignature',
         ]);
-        $mock->method('getMtime')->willReturn(1557247935);
-        $mock->method('addTimeToUrl')->willReturnOnConsecutiveCalls(
+        $mock->method('getSignature')->willReturn('1557247935');
+        
+        // we test only cacheBustAcfImage, not the underlying methods
+        $mock->method('addSignatureToUrl')->willReturnOnConsecutiveCalls(
             'cache-busted-url-main',
             'cache-busted-url-size-800',
             'cache-busted-url-size-1600'
