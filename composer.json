@@ -15,7 +15,8 @@
     "require-dev": {
         "phpunit/phpunit": "^8.0",
         "mikey179/vfsstream": "^1.6",
-        "phpstan/phpstan": "^1.6"
+        "phpstan/phpstan": "^1.6",
+        "oscarotero/env": "^2.0"
     },
     "autoload": {
         "psr-4": {

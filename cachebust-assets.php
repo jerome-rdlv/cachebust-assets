@@ -14,6 +14,8 @@ use Rdlv\WordPress\CacheBustAssets\BusterFactory;
 use Rdlv\WordPress\CacheBustAssets\WordPressRootPath;
 use Rdlv\WordPress\Registry\Registry;
 
+use function Env\env;
+
 // Prevent direct execution.
 if (!defined('ABSPATH')) {
     exit;
@@ -29,7 +31,7 @@ if (!class_exists(BusterFactory::class)) {
     }
 }
 
-$buster = (new BusterFactory())->create(getenv('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
+$buster = (new BusterFactory())->create(env('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
 
 if (class_exists(Registry::class)) {
     Registry::set($buster, 'cachebuster');
