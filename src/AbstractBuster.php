@@ -9,9 +9,9 @@ abstract class AbstractBuster
     const SIGNATURE_MD5 = 'md5';
     const SIGNATURE_SHA1 = 'sha1';
 
-    private string $homeUrl;
+    private ?string $homeUrl = null;
 
-    private string $homePath;
+    private ?string $homePath = null;
 
     /** @var callable */
     private $filter;
