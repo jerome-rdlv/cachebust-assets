@@ -55,7 +55,7 @@ add_action('init', function () use ($buster) {
     // default filters
     add_filter('cachebust_url', function ($cachebust, $url) {
         return strpos($url, '/wp/') === false;
-    },         5, 2);
+    }, 5, 2);
     add_filter('cachebust_assets_enabled', function () {
         return !is_admin() && $GLOBALS['pagenow'] !== 'wp-login.php';
     });
@@ -69,7 +69,7 @@ add_action('init', function () use ($buster) {
     add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
 
     // utilities
-   
+
     /**
      * @deprecated Should get buster service from Registry
      */
@@ -79,4 +79,40 @@ add_action('init', function () use ($buster) {
      * @deprecated Should get buster service from Registry
      */
     add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
+});
+
+add_filter('mod_rewrite_rules', function ($rules): string {
+    preg_match('#(Apache)/(?<version>[0-9.]+)#i', $_SERVER['SERVER_SOFTWARE'], $m);
+    if (!$m || !version_compare($m['version'], '2.4', '>=')) {
+        return $rules;
+    }
+    $cachebust_rules = <<<EOD
+# BEGIN Cachebust assets
+<IfModule mod_expires.c>
+    # available with apache 2.4 and above only
+    <If "-n %{ENV:REDIRECT_LT_CACHE} || -n %{ENV:REDIRECT_REDIRECT_LT_CACHE} || %{QUERY_STRING} =~ m#(^|&)(v|ver)=[\d.]+($|&)#">
+        <IfModule mod_headers.c>
+            Header set Cache-Control "max-age=31536000, public"
+        </IfModule>
+        ExpiresActive On
+        ExpiresDefault "access plus 1 year"
+        ExpiresByType text/css "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
+    </If>
+</IfModule>
+<IfModule mod_rewrite.c>
+    # Rewrite static resources which have a cachebust fragment
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.v([0-9a-z]+)\.([a-z0-9]+)(\?.*)?$ $1.$3 [L,E=LT_CACHE:$1]
+</IfModule>
+<IfModule mod_headers.c>
+    # Remove etags
+    Header unset ETag
+</IfModule>
+FileETag None
+# END Cachebust assets
+EOD;
+    return "\n" . trim($cachebust_rules) . "\n\n" . trim($rules);
 });
