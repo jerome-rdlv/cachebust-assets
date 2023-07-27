@@ -38,7 +38,7 @@ if (class_exists(Registry::class)) {
 }
 
 add_action('init', function () use ($buster) {
-    if (!apply_filters('cachebust_assets_enabled', !is_admin())) {
+    if (!apply_filters('cachebust_assets_enabled', !is_admin() || (defined('DOING_AJAX') && DOING_AJAX))) {
         return;
     }
 
@@ -64,6 +64,12 @@ add_action('init', function () use ($buster) {
     add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
 
     add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
+    add_filter('wp_get_attachment_image_attributes', function ($attr) use ($buster) {
+        if (isset($attr['src'])) {
+            $attr['src'] = $buster->cacheBustUrl($attr['src']);
+        }
+        return $attr;
+    });
     add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
 
     add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
@@ -92,7 +98,7 @@ add_filter('mod_rewrite_rules', function ($rules): string {
 # BEGIN Cachebust assets
 <IfModule mod_expires.c>
     # available with apache 2.4 and above only
-    <If "-n %{ENV:REDIRECT_LT_CACHE} || -n %{ENV:REDIRECT_REDIRECT_LT_CACHE} || %{QUERY_STRING} =~ m#(^|&)(v|ver)=[\d.]+($|&)#">
+    <If "-n %{ENV:REDIRECT_LT_CACHE} || -n %{ENV:REDIRECT_REDIRECT_LT_CACHE} || %{QUERY_STRING} =~ m#(^|&)(v|ver)=[0-9a-z.]+($|&)#">
         <IfModule mod_headers.c>
             Header set Cache-Control "max-age=31536000, public"
         </IfModule>
