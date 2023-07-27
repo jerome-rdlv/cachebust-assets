@@ -83,7 +83,9 @@ add_action('init', function () use ($buster) {
 
 add_filter('mod_rewrite_rules', function ($rules): string {
     preg_match('#(Apache)/(?<version>[0-9.]+)#i', $_SERVER['SERVER_SOFTWARE'], $m);
-    if (!$m || !version_compare($m['version'], '2.4', '>=')) {
+    $version_ok = $m && version_compare($m['version'], '2.4', '>=');
+    $force = env('CACHEBUST_HTACCESS');
+    if (!$force && !$version_ok) {
         return $rules;
     }
     $cachebust_rules = <<<EOD
