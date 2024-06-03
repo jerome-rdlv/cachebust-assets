@@ -17,8 +17,8 @@ abstract class AbstractBuster
     private $filter;
 
     /**
-     * @param string $homeUrl
-     * @param string $homePath
+     * @param  string  $homeUrl
+     * @param  string  $homePath
      * @return $this
      */
     public function setHome(string $homeUrl, string $homePath): AbstractBuster
@@ -36,7 +36,7 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param callable $filter
+     * @param  callable  $filter
      * @return $this
      */
     public function setFilter(callable $filter): self
@@ -46,42 +46,42 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param string $url
+     * @param  string  $url
      * @return bool
      */
     public abstract function isCacheBusted(string $url): bool;
 
     /**
      * @see https://www.php.net/manual/en/function.parse-url.php
-     * @param array $parts
+     * @param  array  $parts
      * @return string
      */
     public function buildUrl(array $parts): string
     {
-        $scheme = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+        $scheme = isset($parts['scheme']) ? $parts['scheme'].'://' : '';
         $host = $parts['host'] ?? '';
-        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
         $user = $parts['user'] ?? '';
-        $pass = isset($parts['pass']) ? ':' . $parts['pass'] : '';
+        $pass = isset($parts['pass']) ? ':'.$parts['pass'] : '';
         $pass = ($user || $pass) ? "$pass@" : '';
         $path = $parts['path'] ?? '';
-        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
-        $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+        $query = isset($parts['query']) ? '?'.$parts['query'] : '';
+        $fragment = isset($parts['fragment']) ? '#'.$parts['fragment'] : '';
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
     /**
-     * @param string $url
+     * @param  string  $url
      * @return bool
      */
     public function isLocal(string $url): bool
     {
-        return strpos($url, $this->homeUrl) === 0;
+        return str_starts_with($url, $this->homeUrl);
     }
 
     /**
      * For a given URL, return the file system path.
-     * @param string $url The URL to convert
+     * @param  string  $url  The URL to convert
      * @return string|null The local resource path if it exists, null otherwise
      */
     public function getPath(string $url): ?string
@@ -92,12 +92,12 @@ abstract class AbstractBuster
         unset($urlParts['fragment']);
         $url = $this->buildUrl($urlParts);
 
-        return $this->homePath . substr($url, strlen($this->homeUrl));
+        return $this->homePath.substr($url, strlen($this->homeUrl));
     }
 
     /**
-     * @param string $path File path
-     * @param string $mode
+     * @param  string  $path  File path
+     * @param  string  $mode
      * @return string|null
      */
     public function getSignature(string $path, string $mode = self::SIGNATURE_TIME): ?string
@@ -117,14 +117,17 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param string $url
-     * @param string $mode
+     * @param  string  $url
+     * @param  string  $mode
      * @return string
      */
     public function cacheBustUrl(string $url, string $mode = self::SIGNATURE_TIME): string
     {
         if ($this->homeUrl === null || $this->homePath === null) {
-            error_log("Cachebust-assets error: homeUrl and homePath should be defined. Maybe you called cacheBustUrl to early?");
+            trigger_error(
+                "Cachebust-assets error: homeUrl and homePath should be defined. Maybe you called cacheBustUrl to early?",
+                E_USER_WARNING
+            );
         }
 
         if (!$this->isLocal($url)) {
@@ -152,8 +155,8 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param string $url URL to add cache busting fragment to
-     * @param integer $signature File signature
+     * @param  string  $url  URL to add cache busting fragment to
+     * @param  integer  $signature  File signature
      * @return string Cache busted URL
      */
     public abstract function addSignatureToUrl(string $url, string $signature): string;
@@ -165,7 +168,7 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param string $html
+     * @param  string  $html
      * @return string
      */
     public function cacheBustThumbnail(string $html): string
@@ -184,9 +187,9 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param array $sources
+     * @param  array  $sources
      * @param $sizeArray
-     * @param string $imageSrc
+     * @param  string  $imageSrc
      * @return array
      */
     public function cacheBustSrcset(array $sources, $sizeArray, string $imageSrc): array
@@ -209,7 +212,7 @@ abstract class AbstractBuster
 
     /**
      * Add cache busting fragment to an image ACF field sources
-     * @param array $image
+     * @param  array  $image
      * @return array
      */
     public function cacheBustAcfImage(array $image): array
@@ -231,7 +234,7 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param array $meta_tags
+     * @param  array  $meta_tags
      * @return array
      */
     public function cacheBustFavicons(array $meta_tags): array

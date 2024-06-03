@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 if (!class_exists(BusterFactory::class)) {
-    $autoload = __DIR__ . '/vendor/autoload.php';
+    $autoload = __DIR__.'/vendor/autoload.php';
     if (file_exists($autoload)) {
         require_once $autoload;
     } else {
@@ -33,11 +33,15 @@ if (!class_exists(BusterFactory::class)) {
 
 $buster = (new BusterFactory())->create(env('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
 
-if (class_exists(Registry::class)) {
+if (!is_admin() && class_exists(Registry::class)) {
     Registry::set($buster, 'cachebuster');
 }
 
 add_action('init', function () use ($buster) {
+    if (is_admin()) {
+        return;
+    }
+
     if (!apply_filters('cachebust_assets_enabled', !is_admin() || (defined('DOING_AJAX') && DOING_AJAX))) {
         return;
     }
@@ -122,5 +126,5 @@ add_filter('mod_rewrite_rules', function ($rules): string {
 FileETag None
 # END Cachebust assets
 EOD;
-    return "\n" . trim($cachebust_rules) . "\n\n" . trim($rules);
+    return "\n".trim($cachebust_rules)."\n\n".trim($rules);
 });
