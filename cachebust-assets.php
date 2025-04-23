@@ -29,7 +29,7 @@ if (!class_exists(BusterFactory::class)) {
     }
 }
 
-$buster = (new BusterFactory())->create(getenv('CACHEBUST_MODE') ?? BusterFactory::MODE_QUERY_STRING);
+$buster = (new BusterFactory())->create(getenv('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
 
 if (class_exists(Registry::class)) {
     Registry::set($buster, 'cachebuster');
