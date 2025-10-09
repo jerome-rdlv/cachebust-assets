@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @noinspection HttpUrlsUsage 
- * @noinspection PhpUnhandledExceptionInspection 
+ * @noinspection HttpUrlsUsage
+ * @noinspection PhpUnhandledExceptionInspection
  */
 
 use org\bovigo\vfs\vfsStream;
@@ -137,6 +137,16 @@ class AbstractBusterTest extends TestCase
             '/var/www/main.js',
             $buster->getPath('http://example.org/main.js')
         );
+    }
+
+    public function testNotReadyError()
+    {
+        $mock = $this->getMockForAbstractClass(AbstractBuster::class);
+
+        /** @var AbstractBuster $buster */
+        $buster = $mock;
+        $this->expectError();
+        $buster->cacheBustUrl('http://example.org/main.js');
     }
 
     public function testCacheBustUrl()
