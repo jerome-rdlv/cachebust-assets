@@ -25,5 +25,4 @@ class QueryStringBuster extends AbstractBuster
         $parts['query'] = (isset($parts['query']) ? $parts['query'] . '&' : '') . 'v=' . $signature;
         return $this->buildUrl($parts);
     }
-
 }

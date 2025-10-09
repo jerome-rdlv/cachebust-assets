@@ -12,17 +12,15 @@
 
 use Rdlv\WordPress\CacheBustAssets\BusterFactory;
 use Rdlv\WordPress\CacheBustAssets\WordPressRootPath;
-use Rdlv\WordPress\Registry\Registry;
-
 use function Env\env;
 
 // Prevent direct execution.
-if (!defined('ABSPATH')) {
-    exit;
-}
+//if (!defined('ABSPATH')) {
+//    exit;
+//}
 
 if (!class_exists(BusterFactory::class)) {
-    $autoload = __DIR__.'/vendor/autoload.php';
+    $autoload = __DIR__ . '/vendor/autoload.php';
     if (file_exists($autoload)) {
         require_once $autoload;
     } else {
@@ -33,8 +31,8 @@ if (!class_exists(BusterFactory::class)) {
 
 $buster = (new BusterFactory())->create(env('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
 
-if (!is_admin() && class_exists(Registry::class)) {
-    Registry::set($buster, 'cachebuster');
+if (!is_admin() && class_exists('Rdlv\WordPress\Registry\Registry')) {
+    Rdlv\WordPress\Registry\Registry::set($buster, 'cachebuster');
 }
 
 add_action('init', function () use ($buster) {
@@ -126,5 +124,5 @@ add_filter('mod_rewrite_rules', function ($rules): string {
 FileETag None
 # END Cachebust assets
 EOD;
-    return "\n".trim($cachebust_rules)."\n\n".trim($rules);
+    return "\n" . trim($cachebust_rules) . "\n\n" . trim($rules);
 });

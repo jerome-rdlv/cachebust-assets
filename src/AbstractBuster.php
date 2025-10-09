@@ -5,22 +5,16 @@ namespace Rdlv\WordPress\CacheBustAssets;
 
 abstract class AbstractBuster
 {
-    const SIGNATURE_TIME = 'timestamp';
-    const SIGNATURE_MD5 = 'md5';
-    const SIGNATURE_SHA1 = 'sha1';
+    public const SIGNATURE_TIME = 'timestamp';
+    public const SIGNATURE_MD5 = 'md5';
+    public const SIGNATURE_SHA1 = 'sha1';
 
     private ?string $homeUrl = null;
-
     private ?string $homePath = null;
 
     /** @var callable */
     private $filter;
 
-    /**
-     * @param string $homeUrl
-     * @param string $homePath
-     * @return $this
-     */
     public function setHome(string $homeUrl, string $homePath): AbstractBuster
     {
         if ($homeUrl && strpos($homeUrl, '/', -1) === false) {
@@ -35,26 +29,16 @@ abstract class AbstractBuster
         return $this;
     }
 
-    /**
-     * @param callable $filter
-     * @return $this
-     */
     public function setFilter(callable $filter): self
     {
         $this->filter = $filter;
         return $this;
     }
 
-    /**
-     * @param string $url
-     * @return bool
-     */
-    public abstract function isCacheBusted(string $url): bool;
+    abstract public function isCacheBusted(string $url): bool;
 
     /**
      * @see https://www.php.net/manual/en/function.parse-url.php
-     * @param array $parts
-     * @return string
      */
     public function buildUrl(array $parts): string
     {
@@ -70,13 +54,9 @@ abstract class AbstractBuster
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
-    /**
-     * @param string $url
-     * @return bool
-     */
     public function isLocal(string $url): bool
     {
-        return str_starts_with($url, $this->homeUrl);
+        return strpos($url, $this->homeUrl) === 0;
     }
 
     /**
@@ -161,10 +141,10 @@ abstract class AbstractBuster
 
     /**
      * @param string $url URL to add cache busting fragment to
-     * @param integer $signature File signature
+     * @param string $signature File signature
      * @return string Cache busted URL
      */
-    public abstract function addSignatureToUrl(string $url, string $signature): string;
+    abstract public function addSignatureToUrl(string $url, string $signature): string;
 
     public function cacheBustImageSrc(array $src): array
     {
@@ -172,10 +152,6 @@ abstract class AbstractBuster
         return $src;
     }
 
-    /**
-     * @param string $html
-     * @return string
-     */
     public function cacheBustThumbnail(string $html): string
     {
         return preg_replace_callback(
@@ -192,10 +168,7 @@ abstract class AbstractBuster
     }
 
     /**
-     * @param array $sources
-     * @param $sizeArray
-     * @param string $imageSrc
-     * @return array
+     * @noinspection PhpUnusedParameterInspection
      */
     public function cacheBustSrcset(array $sources, $sizeArray, string $imageSrc): array
     {
@@ -217,8 +190,6 @@ abstract class AbstractBuster
 
     /**
      * Add cache busting fragment to an image ACF field sources
-     * @param array $image
-     * @return array
      */
     public function cacheBustAcfImage(array $image): array
     {
@@ -238,10 +209,6 @@ abstract class AbstractBuster
         return $image;
     }
 
-    /**
-     * @param array $meta_tags
-     * @return array
-     */
     public function cacheBustFavicons(array $meta_tags): array
     {
         return array_map(function ($meta_tag) {

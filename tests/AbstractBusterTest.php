@@ -1,6 +1,9 @@
 <?php
 
-/** @noinspection PhpUnhandledExceptionInspection */
+/**
+ * @noinspection HttpUrlsUsage 
+ * @noinspection PhpUnhandledExceptionInspection 
+ */
 
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +11,7 @@ use Rdlv\WordPress\CacheBustAssets\AbstractBuster;
 
 class AbstractBusterTest extends TestCase
 {
-    private $rootUrl;
+    private string $rootUrl;
 
     protected function setUp(): void
     {
@@ -31,7 +34,7 @@ class AbstractBusterTest extends TestCase
         /** @var AbstractBuster $buster */
         $buster = $this->getMockForAbstractClass(AbstractBuster::class);
         $this->assertEquals(md5($content),
-                            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_MD5));
+            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_MD5));
     }
 
     public function testSha1Signature()
@@ -41,7 +44,7 @@ class AbstractBusterTest extends TestCase
         /** @var AbstractBuster $buster */
         $buster = $this->getMockForAbstractClass(AbstractBuster::class);
         $this->assertEquals(sha1($content),
-                            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_SHA1));
+            $buster->getSignature($this->rootUrl . '/test.js', AbstractBuster::SIGNATURE_SHA1));
     }
 
     public function testBuildUrlWithHttps()
@@ -249,18 +252,18 @@ class AbstractBusterTest extends TestCase
         $buster->setHome('http://example.org/', $this->rootUrl);
 
         $image = [
-            'url'   => 'http://example.org/wp-content/uploads/image.jpg',
+            'url' => 'http://example.org/wp-content/uploads/image.jpg',
             'sizes' => [
-                800  => 'http://example.org/wp-content/uploads/image-800x600.jpg',
+                800 => 'http://example.org/wp-content/uploads/image-800x600.jpg',
                 1600 => 'http://example.org/wp-content/uploads/image-1600x1200.jpg',
             ],
         ];
 
         $this->assertEquals(
             [
-                'url'   => 'cache-busted-url-main',
+                'url' => 'cache-busted-url-main',
                 'sizes' => [
-                    800  => 'cache-busted-url-size-800',
+                    800 => 'cache-busted-url-size-800',
                     1600 => 'cache-busted-url-size-1600',
                 ],
             ],
@@ -303,7 +306,7 @@ class AbstractBusterTest extends TestCase
         $buster->setHome('http://example.org/', $this->rootUrl);
 
         $this->assertEquals('cache-busted-url', $buster->cacheBustUrl($url));
-        $buster->setFilter(function (string $url) {
+        $buster->setFilter(function () {
             return false;
         });
         $this->assertEquals($url, $buster->cacheBustUrl($url));

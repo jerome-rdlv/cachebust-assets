@@ -17,7 +17,7 @@ class PathBuster extends AbstractBuster
     /**
      * @inerhitDoc
      */
-    public function addSignatureToUrl(string $url, string $signature): string
+    public function addSignatureToUrl(string $url, $signature): string
     {
         $parts = parse_url($url);
         // add cache busting fragment as url path fragment

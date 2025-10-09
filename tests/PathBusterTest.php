@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @noinspection HttpUrlsUsage
+ */
 
 use PHPUnit\Framework\TestCase;
 use Rdlv\WordPress\CacheBustAssets\PathBuster;
@@ -12,7 +15,7 @@ class PathBusterTest extends TestCase
             'http://example.org/app/theme/default/main.min.v1557248448.js'
         ));
     }
-    
+
     public function testIsNotCacheBusted()
     {
         $this->assertFalse((new PathBuster())->isCacheBusted(
@@ -26,7 +29,7 @@ class PathBusterTest extends TestCase
             'http://example.org/app/theme/default/main.v1557248699.min.js'
         ));
     }
-    
+
     public function testAddTimeToUrl()
     {
         $time = 1557248558;

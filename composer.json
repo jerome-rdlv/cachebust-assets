@@ -10,14 +10,15 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "composer/installers": "^1.0 || ^2.0"
+        "php": ">=7.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0",
         "mikey179/vfsstream": "^1.6",
         "phpstan/phpstan": "^1.6",
-        "oscarotero/env": "^2.0"
+        "oscarotero/env": "^2.0",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -26,11 +27,12 @@
     },
     "scripts": {
         "test": "@php vendor/bin/phpunit --configuration phpunit.xml",
-        "phpstan": "@php vendor/bin/phpstan analyze src"
+        "phpstan": "@php vendor/bin/phpstan",
+        "phpcs": "@php vendor/bin/phpcs --ignore=/vendor -p . --standard=PHPCompatibility --runtime-set testVersion 7.4"
     },
     "config": {
         "allow-plugins": {
-            "composer/installers": false
+            "dealerdirect/phpcodesniffer-composer-installer": true
         },
         "platform": {
             "php": "7.4"
