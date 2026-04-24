@@ -12,6 +12,7 @@
 
 use Rdlv\WordPress\CacheBustAssets\BusterFactory;
 use Rdlv\WordPress\CacheBustAssets\WordPressRootPath;
+
 use function Env\env;
 
 // Prevent direct execution.
@@ -45,11 +46,8 @@ add_action('init', function () use ($buster) {
     }
 
     // home path resolution
-    $home_url = get_option('home');
-    $site_url = get_option('siteurl');
-    $home_path = (new WordPressRootPath())->get($home_url, $site_url, ABSPATH);
-
-    $buster->setHome($home_url, $home_path);
+    $home_path = (new WordPressRootPath())->get(get_option('home'), get_option('siteurl'), ABSPATH);
+    $buster->setHome(home_url(), $home_path);
     $buster->setFilter(function ($url) {
         return apply_filters('cachebust_url', true, $url);
     });
