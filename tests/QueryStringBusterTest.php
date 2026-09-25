@@ -54,4 +54,30 @@ class QueryStringBusterTest extends TestCase
 			new QueryStringBuster()->addSignatureToUrl('http://example.org/main.js?param1=val1', $time)
 		);
 	}
+
+	/**
+	 * @throws InvalidUriException
+	 */
+	public function testRemoveCacheBusting(): void
+	{
+		$this->assertEquals(
+			'http://example.org/app/theme/default/main.min.js?param1=val1&param2=val2',
+			new QueryStringBuster()->removeCacheBusting(
+				'http://example.org/app/theme/default/main.min.js?param1=val1&v=1557248782&param2=val2'
+			)
+		);
+	}
+
+	/**
+	 * @throws InvalidUriException
+	 */
+	public function testRemoveNullCacheBusting(): void
+	{
+		$this->assertEquals(
+			'http://example.org/app/theme/default/main.min.js?param1=val1&param2=val2',
+			new QueryStringBuster()->removeCacheBusting(
+				'http://example.org/app/theme/default/main.min.js?param1=val1&param2=val2'
+			)
+		);
+	}
 }

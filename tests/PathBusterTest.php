@@ -69,4 +69,30 @@ class PathBusterTest extends TestCase
 			new PathBuster()->addSignatureToUrl('http://example.org/main.js?param1=val1', $time)
 		);
 	}
+
+	/**
+	 * @throws InvalidUriException
+	 */
+	public function testRemoveCacheBusting(): void
+	{
+		$this->assertEquals(
+			'http://example.org/app/theme/default/main.min.js',
+			new PathBuster()->removeCacheBusting(
+				'http://example.org/app/theme/default/main.min.v1557248448.js'
+			)
+		);
+	}
+
+	/**
+	 * @throws InvalidUriException
+	 */
+	public function testRemoveNullCacheBusting(): void
+	{
+		$this->assertEquals(
+			'http://example.org/app/theme/default/main.min.js',
+			new PathBuster()->removeCacheBusting(
+				'http://example.org/app/theme/default/main.min.js'
+			)
+		);
+	}
 }

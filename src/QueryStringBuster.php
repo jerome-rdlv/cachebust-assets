@@ -33,7 +33,7 @@ class QueryStringBuster extends AbstractBuster
 		if (array_key_exists('v', $params)) {
 			unset($params['v']);
 		}
-		return $uri->withQuery(build_query($params))->toString();
+		return $uri->withQuery(http_build_query($params))->toString();
 	}
 
 	/**
