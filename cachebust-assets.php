@@ -21,80 +21,76 @@ use function Env\env;
 //}
 
 if (!class_exists(BusterFactory::class)) {
-    $autoload = __DIR__ . '/vendor/autoload.php';
-    if (file_exists($autoload)) {
-        require_once $autoload;
-    } else {
-        error_log('You need to install dependencies with `composer install`.');
-        return;
-    }
+	$autoload = __DIR__ . '/vendor/autoload.php';
+	if (file_exists($autoload)) {
+		require_once $autoload;
+	} else {
+		error_log('You need to install dependencies with `composer install`.');
+		return;
+	}
 }
 
 $buster = (new BusterFactory())->create(env('CACHEBUST_MODE') ?: BusterFactory::MODE_QUERY_STRING);
 
 if (!is_admin() && class_exists('Rdlv\WordPress\Registry\Registry')) {
-    Rdlv\WordPress\Registry\Registry::set($buster, 'cachebuster');
+	Rdlv\WordPress\Registry\Registry::set($buster, 'cachebuster');
 }
 
 add_action('init', function () use ($buster) {
-    if (is_admin()) {
-        return;
-    }
+	if (!apply_filters('cachebust_assets_enabled', !is_admin() || wp_doing_ajax())) {
+		return;
+	}
 
-    if (!apply_filters('cachebust_assets_enabled', !is_admin() || (defined('DOING_AJAX') && DOING_AJAX))) {
-        return;
-    }
+	// home path resolution
+	$home_path = new WordPressRootPath()->get(get_option('home'), get_option('siteurl'), ABSPATH);
+	$buster->setHome(home_url(), $home_path);
+	$buster->setFilter(function ($url) {
+		return apply_filters('cachebust_url', true, $url);
+	});
 
-    // home path resolution
-    $home_path = (new WordPressRootPath())->get(get_option('home'), get_option('siteurl'), ABSPATH);
-    $buster->setHome(home_url(), $home_path);
-    $buster->setFilter(function ($url) {
-        return apply_filters('cachebust_url', true, $url);
-    });
+	// default filters
+	add_filter('cachebust_url', function ($cachebust, $url) {
+		return strpos($url, '/wp/') === false;
+	}, 5, 2);
+	add_filter('cachebust_assets_enabled', function () {
+		return !is_admin() && $GLOBALS['pagenow'] !== 'wp-login.php';
+	});
 
-    // default filters
-    add_filter('cachebust_url', function ($cachebust, $url) {
-        return strpos($url, '/wp/') === false;
-    }, 5, 2);
-    add_filter('cachebust_assets_enabled', function () {
-        return !is_admin() && $GLOBALS['pagenow'] !== 'wp-login.php';
-    });
+	add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
+	add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
 
-    add_filter('script_loader_src', [$buster, 'cacheBustUrl']);
-    add_filter('style_loader_src', [$buster, 'cacheBustUrl']);
+	add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
+	add_filter('wp_get_attachment_image_attributes', function ($attr) use ($buster) {
+		if (isset($attr['src'])) {
+			$attr['src'] = $buster->cacheBustUrl($attr['src']);
+		}
+		return $attr;
+	});
+	add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
 
-    add_filter('post_thumbnail_html', [$buster, 'cacheBustThumbnail']);
-    add_filter('wp_get_attachment_image_attributes', function ($attr) use ($buster) {
-        if (isset($attr['src'])) {
-            $attr['src'] = $buster->cacheBustUrl($attr['src']);
-        }
-        return $attr;
-    });
-    add_filter('wp_calculate_image_srcset', [$buster, 'cacheBustSrcset'], 10, 3);
+	add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
 
-    add_filter('site_icon_meta_tags', [$buster, 'cacheBustFavicons']);
+	// utilities
 
-    // utilities
+	/**
+	 * @deprecated Should get buster service from Registry
+	 */
+	add_filter('cache_bust_url', [$buster, 'cacheBustUrl'], 10, 2);
 
-    /**
-     * @deprecated Should get buster service from Registry
-     */
-    add_filter('cache_bust_url', [$buster, 'cacheBustUrl'], 10, 2);
-
-    /**
-     * @deprecated Should get buster service from Registry
-     */
-    add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
+	/**
+	 * @deprecated Should get buster service from Registry
+	 */
+	add_filter('cache_bust_acf_image', [$buster, 'cacheBustAcfImage']);
 });
 
 add_filter('mod_rewrite_rules', function ($rules): string {
-    preg_match('#(Apache)/(?<version>[0-9.]+)#i', $_SERVER['SERVER_SOFTWARE'], $m);
-    $version_ok = $m && version_compare($m['version'], '2.4', '>=');
-    $force = env('CACHEBUST_HTACCESS');
-    if (!$force && !$version_ok) {
-        return $rules;
-    }
-    $cachebust_rules = <<<EOD
+	preg_match('#(Apache)/(?<version>[0-9.]+)#i', $_SERVER['SERVER_SOFTWARE'], $m);
+	$version_ok = $m && version_compare($m['version'], '2.4', '>=');
+	$force = env('CACHEBUST_HTACCESS');
+	if (!$force && !$version_ok) {
+		return $rules;
+	}
+	$cachebust_rules = <<<EOD
 # BEGIN Cachebust assets
 <IfModule mod_expires.c>
     # available with apache 2.4 and above only
@@ -122,5 +118,5 @@ add_filter('mod_rewrite_rules', function ($rules): string {
 FileETag None
 # END Cachebust assets
 EOD;
-    return "\n" . trim($cachebust_rules) . "\n\n" . trim($rules);
+	return "\n" . trim($cachebust_rules) . "\n\n" . trim($rules);
 });

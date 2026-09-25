@@ -1,14 +1,6 @@
 parameters:
-    level: 4
+    level: 5
     paths:
         - src
         - tests
         - cachebust-assets.php
-    ignoreErrors:
-        - '#Function is_admin not found\.#'
-        - '#Function add_action not found\.#'
-        - '#Function add_filter not found\.#'
-        - '#Function get_option not found\.#'
-        - '#Function apply_filters not found\.#'
-        - '#Constant ABSPATH not found\.#'
-    treatPhpDocTypesAsCertain: false

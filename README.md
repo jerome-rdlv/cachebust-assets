@@ -66,7 +66,7 @@ of resources. On Apache for example:
 
 ### Path mode
 
-Query string parameter may cause issues in some environment like CDN or with some 
+Query string parameter may cause issues in some environment like CDN or with some
 web server configurations. In this case you may switch to `path` mode:
 
 ```php
