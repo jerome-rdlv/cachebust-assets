@@ -2,12 +2,12 @@ version: 2.1
 orbs:
     codecov: codecov/codecov@1.0.2
 executors:
-    php7:
+    php8:
         docker:
-            -   image: cimg/php:7.4
+            -   image: cimg/php:8.5
 jobs:
     tests:
-        executor: php7
+        executor: php8
         steps:
             - checkout
             -   restore_cache:
@@ -15,9 +15,14 @@ jobs:
                         - composer-{{ checksum "composer.lock" }}
                         - composer-
             -   run:
+                    name: Composer install
+                    command: composer install
+            -   run:
+                    name: PHPStan
+                    command: composer phpstan
+            -   run:
                     name: Run unit tests and code coverage
                     command: |
-                        composer install
                         vendor/bin/phpunit --no-coverage --log-junit test-results/phpunit/results.xml --configuration phpunit.xml
                         phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml --configuration phpunit.xml
             -   save_cache:
@@ -30,7 +35,7 @@ jobs:
                     file: coverage.xml
                     flags: unittests
     package:
-        executor: php7
+        executor: php8
         steps:
             - checkout
             -   run:
