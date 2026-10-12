@@ -13,31 +13,40 @@ class PathBuster extends AbstractBuster
 
 	/**
 	 * @inerhitDoc
-	 * @throws InvalidUriException
 	 */
-	public function isCacheBusted($url): bool
+	public function isCacheBusted(string $url): bool
 	{
-		return !!preg_match(self::FRAGMENT_REGEX, new Uri($url)->getPath());
+		try {
+			return !!preg_match(self::FRAGMENT_REGEX, new Uri($url)->getPath());
+		} catch (InvalidUriException) {
+			return false;
+		}
 	}
 
 	/**
 	 * @inerhitDoc
-	 * @throws InvalidUriException
 	 */
-	public function removeCacheBusting($url): string
+	public function removeCacheBusting(string $url): string
 	{
-		$uri = new Uri($url);
-		return $uri->withPath(preg_replace(self::FRAGMENT_REGEX, '\2', $uri->getPath()))->toString();
+		try {
+			$uri = new Uri($url);
+			return $uri->withPath(preg_replace(self::FRAGMENT_REGEX, '\2', $uri->getPath()))->toString();
+		} catch (InvalidUriException) {
+			return $url;
+		}
 	}
 
 	/**
 	 * @inerhitDoc
-	 * @throws InvalidUriException
 	 */
 	public function addSignatureToUrl(string $url, $signature): string
 	{
-		$uri = new Uri($url);
-		// add cache busting fragment as url path fragment
-		return $uri->withPath(preg_replace('/(\.[^.]+)$/', '.v' . $signature . '\1', $uri->getPath()))->toString();
+		try {
+			$uri = new Uri($url);
+			// add cache busting fragment as url path fragment
+			return $uri->withPath(preg_replace('/(\.[^.]+)$/', '.v' . $signature . '\1', $uri->getPath()))->toString();
+		} catch (InvalidUriException) {
+			return $url;
+		}
 	}
 }

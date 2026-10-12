@@ -40,6 +40,10 @@ abstract class AbstractBuster
 		return $this;
 	}
 
+	/**
+	 * @param array{0: string, 1: int, 2: int} $src
+	 * @return array{0: string, 1: int, 2: int}
+	 */
 	public function cacheBustImageSrc(array $src): array
 	{
 		$src[0] = $this->cacheBustUrl($src[0]);
@@ -142,9 +146,12 @@ abstract class AbstractBuster
 	}
 
 	/**
+	 * @param array{array{url: string}} $sources
+	 * @param ?array{array{url: string}} $sizeArray
+	 * @return array{array{url: string}}
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function cacheBustSrcset(array $sources, $sizeArray, string $imageSrc): array
+	public function cacheBustSrcset(array $sources, ?array $sizeArray, string $imageSrc): array
 	{
 		if (!$this->isLocal($imageSrc)) {
 			return $sources;
@@ -163,6 +170,9 @@ abstract class AbstractBuster
 
 	/**
 	 * Add cache busting fragment to an image ACF field sources
+	 *
+	 * @param array{url: string, sizes: array<int, string>} $image
+	 * @return array{url: string, sizes: array<int, string>}
 	 */
 	public function cacheBustAcfImage(array $image): array
 	{
@@ -173,10 +183,8 @@ abstract class AbstractBuster
 		try {
 			$signature = $this->getSignature($this->getPath($image['url']));
 			$image['url'] = $this->addSignatureToUrl($image['url'], $signature);
-			foreach ($image['sizes'] as $key => $data) {
-				if (is_string($image['sizes'][$key])) {
-					$image['sizes'][$key] = $this->addSignatureToUrl($data, $signature);
-				}
+			foreach ($image['sizes'] as $key => $url) {
+				$image['sizes'][$key] = $this->addSignatureToUrl($url, $signature);
 			}
 		} catch (Throwable) {
 		}
@@ -184,6 +192,10 @@ abstract class AbstractBuster
 		return $image;
 	}
 
+	/**
+	 * @param string[] $meta_tags
+	 * @return string[]
+	 */
 	public function cacheBustFavicons(array $meta_tags): array
 	{
 		return array_map(function ($meta_tag) {

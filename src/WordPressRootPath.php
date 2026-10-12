@@ -6,7 +6,7 @@ namespace Rdlv\WordPress\CacheBustAssets;
 
 class WordPressRootPath
 {
-	public function get($homeUrl, $siteUrl, $absPath): string
+	public function get(string $homeUrl, string $siteUrl, string $absPath): string
 	{
 		if (!empty($homeUrl) && 0 !== strcasecmp($homeUrl, $siteUrl)) {
 			$relPath = preg_replace('/[^\/]+/', '..', str_ireplace($homeUrl, '', $siteUrl));
@@ -26,7 +26,7 @@ class WordPressRootPath
 	/**
 	 * @see https://www.php.net/manual/en/function.realpath.php#84012
 	 */
-	public function canonicalize($path): string
+	public function canonicalize(string $path): string
 	{
 		$path = preg_replace('/[\/\\\\]+/', DIRECTORY_SEPARATOR, $path);
 		$parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), fn($v) => strlen($v) > 0);
