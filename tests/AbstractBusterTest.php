@@ -111,6 +111,7 @@ class AbstractBusterTest extends TestCase
 	{
 		touch($this->rootUrl . '/main.js', 1557245182);
 		$buster = $this->getMockForAbstractClass(AbstractBuster::class);
+		$buster->method('addSignatureToUrl')->willReturn('cache-busted-url');
 		$buster->setHome('http://example.org/', $this->rootUrl);
 		$this->assertEquals(
 			'cache-busted-url',
